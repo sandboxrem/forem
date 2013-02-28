@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'kaminari'
   s.add_development_dependency 'timecop', '0.3.5'
 
-  s.add_dependency 'rails', ['>= 3.1.10', '< 3.3'] | 0.upto(10).map{|i| "!= 3.2.#{i}"}
+  s.add_dependency 'rails', ['>= 3.1.10', '< 3.3']
   s.add_dependency 'simple_form'
   s.add_dependency 'cancan', '1.6.8'
   s.add_dependency 'forem-redcarpet', '1.0.0'
