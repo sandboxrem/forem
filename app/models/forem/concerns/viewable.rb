@@ -26,11 +26,9 @@ module Forem
           view.past_viewed_at = view.current_viewed_at = Time.now
         end
 
-        if view.current_viewed_at < 15.minutes.ago
-          view.past_viewed_at    = view.current_viewed_at
-          view.current_viewed_at = Time.now
-          view.save
-        end
+        view.past_viewed_at    = view.current_viewed_at
+        view.current_viewed_at = Time.now
+        view.save
       end
     end
   end

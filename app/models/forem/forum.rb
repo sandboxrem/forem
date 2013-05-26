@@ -35,5 +35,9 @@ module Forem
     def moderator?(user)
       user && (user.forem_group_ids & moderator_ids).any?
     end
+
+    def is_updated_for_user?(user)
+      view_for(user).current_viewed_at < last_visible_post(user).updated_at
+    end
   end
 end
