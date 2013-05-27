@@ -37,7 +37,11 @@ module Forem
     end
 
     def is_updated_for_user?(user)
-      view_for(user).current_viewed_at < last_visible_post(user).updated_at
+      if view = view_for(user)
+        view.current_viewed_at < last_visible_post(user).updated_at
+      else
+        false
+      end
     end
   end
 end
