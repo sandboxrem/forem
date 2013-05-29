@@ -5,6 +5,7 @@ module Forem
 
     def index
       @categories = Forem::Category.all
+      @unread_forum_ids = forem_user.unread_topics.map {|topic| topic.forum_id.to_i} if forem_user
     end
 
     def show
