@@ -11,7 +11,6 @@ module Forem
       end
     end
     validates :name, :presence => true
-    attr_accessible :name
 
     def to_s
       name

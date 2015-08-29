@@ -5,8 +5,6 @@ module Forem
 
     validates :subscriber_id, :presence => true
 
-    attr_accessible :subscriber_id
-
     def send_notification(post_id)
       SubscriptionMailer.topic_reply(post_id, subscriber.id).deliver
     end
