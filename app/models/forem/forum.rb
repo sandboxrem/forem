@@ -5,7 +5,7 @@ module Forem
     include Forem::Concerns::Viewable
 
     extend FriendlyId
-    friendly_id :title, :use => :slugged
+    friendly_id :title, use: [:slugged, :history, :finders]
 
     belongs_to :category
 

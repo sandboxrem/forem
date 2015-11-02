@@ -20,7 +20,7 @@ module Forem
     attr_accessor :moderation_option
 
     extend FriendlyId
-    friendly_id :subject, :use => :slugged
+    friendly_id :subject, use: [:slugged, :history, :finders]
 
 
     belongs_to :forum
