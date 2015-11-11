@@ -50,6 +50,7 @@ module Forem
         else
           puts "Adding forem initializer (config/initializers/forem.rb)..."
           template "initializer.rb", path
+          require path # Load the configuration per issue #415
         end
       end
 
@@ -71,7 +72,24 @@ module Forem
       def mount_engine
         puts "Mounting Forem::Engine at \"/forums\" in config/routes.rb..."
         insert_into_file("#{Rails.root}/config/routes.rb", :after => /routes.draw.do\n/) do
-          %Q{  mount Forem::Engine, :at => "/forums"\n}
+          %Q{
+  # This line mounts Forem's routes at /forums by default.
+  # This means, any requests to the /forums URL of your application will go to Forem::ForumsController#index.
+  # If you would like to change where this extension is mounted, simply change the :at option to something different.
+  #
+  # We ask that you don't use the :as option here, as Forem relies on it being the default of "forem"
+  mount Forem::Engine, :at => '/forums'
+
+}
+        end
+      end
+
+      def create_assets
+        create_file Rails.root + "vendor/assets/stylesheets/forem.css.scss"
+        create_file Rails.root + "vendor/assets/javascripts/forem.js.coffee" do
+          %Q{
+#= require jquery
+          }
         end
       end
 
@@ -108,7 +126,7 @@ output += step("`rake db:migrate` was run, running all the migrations against yo
 
           get '/users/sign_in', :to => "users#sign_in"
 
-          Either way, Forem needs one of these two things in order to work properly. Please define them!}
+   Either way, Forem needs one of these two things in order to work properly. Please define them!}
         end
         output += "\nIf you have any questions, comments or issues, please post them on our issues page: http://github.com/radar/forem/issues.\n\n"
         output += "Thanks for using Forem!"

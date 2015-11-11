@@ -14,9 +14,12 @@ module Forem
     has_many :moderators, :through => :moderator_groups, :source => :group
     has_many :moderator_groups
 
-    validates :category, :title, :description, :presence => true
+    validates :category, :name, :description, :presence => true
+    validates :position, numericality: { only_integer: true }
 
     alias_attribute :name, :title
+
+    default_scope { order(:position) }
 
     def last_post_for(forem_user)
       if forem_user && (forem_user.forem_admin? || moderator?(forem_user))
@@ -40,6 +43,10 @@ module Forem
       else
         false
       end
+    end
+
+    def to_s
+      name
     end
   end
 end

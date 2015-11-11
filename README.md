@@ -1,19 +1,13 @@
-![Forem - using the forem-theme-twist theme](https://github.com/radar/forem/raw/master/doc/twist-theme-post.png)
+![Forem - using Bootstrap](https://raw.githubusercontent.com/radar/forem/rails4/doc/theme.png)
 
-*Forem, using the forem-theme-twist theme*
+*Forem, using the forem-bootstrap theme*
 
-*For other screenshots, please see the `doc` folder*
-
-# Forem [![Build status](http://travis-ci.org/radar/forem.png)](http://travis-ci.org/radar/forem)
+# Forem [![Build status](https://api.travis-ci.org/radar/forem.png)](https://travis-ci.org/radar/forem)
 *"NO U!"*
 
 Forem is an engine for Rails that aims to be the best little forum system ever.
 The end goal is to have an engine that can be dropped into an application that
 provides the basic functionality of forums, topics and posts.
-
-**We are currently undergoing large changes.** If you want to use this project, please
-keep this in mind. You can view a list of the intended changes on our [Version 1.0
-Roadmap](https://github.com/radar/forem/wiki/1.0-Roadmap)
 
 # Demo
 
@@ -26,15 +20,23 @@ Installing Forem is easy.
 
 ## Specify Gem dependencies
 
+If you're using Rails 3:
+
 ```ruby
-gem 'forem', :git => "git://github.com/radar/forem.git"
+gem 'forem', :github => "radar/forem", :branch => "rails3"
+```
+
+For Rails 4, use the `rails4` branch:
+
+```ruby
+gem 'forem', :github => "radar/forem", :branch => "rails4"
 ```
 
 And then one of `kaminari` or `will_paginate`
 ```ruby
-gem 'kaminari', '0.13.0'
+gem 'kaminari', '0.15.1'
 # OR
-gem 'will_paginate', '3.0.3'
+gem 'will_paginate', '3.0.5'
 ```
 
 ## Run the installer
@@ -42,7 +44,50 @@ gem 'will_paginate', '3.0.3'
 **Ensure that you first of all have a `User` model and some sort of authentication system set up**. We would recommend going with [Devise](http://github.com/plataformatec/devise), but it's up to
 you. All Forem needs is a model to link topics and posts to.
 
-Run `rails g forem:install` and answer any questions that pop up. There's sensible defaults there if you don't want to answer them.
+Run the installer and answer any questions that pop up. There's sensible defaults there if you don't want to answer them.
+
+```shell
+rails g forem:install
+```
+
+## Set up helper methods in your user model
+
+Forem uses a `forem_name` (which defaults as `to_s`) method being available on your `User` model so that it can display the user's name in posts. Define it in your model like this:
+
+```ruby
+def forem_name
+  name
+end
+```
+
+Please note that if you are using Devise, User model does not have `name` column by default,
+so you either should use custom migration to add it or use another column (`email` for example).
+
+It also uses an optional `forem_email` method for displaying avatars using [Gravatar](http://gravatar.com). It defaults to `email`. If you don't have an `email` attribute on the model, define a new method:
+
+```ruby
+def forem_email
+  email_address
+end
+```
+
+## Require basic Forem assets
+
+Add this line to your `application.js` file to load required JavaScript files:
+
+```js
+//= require forem
+```
+
+Add this line to your `application.css` to apply required styling:
+
+```css
+*= require 'forem/base'
+```
+
+## Specify formatter to use
+
+If you want to provide users with an extended formatting capability, you should pick a [formatter](https://github.com/radar/forem/wiki/Formatters) to use. If you do not use a formatter users will not be able to insert newlines in their posts and do some other fancy stuff, however quoting will work fine.
 
 And you're done! Yaaay!
 
@@ -65,7 +110,7 @@ Here's a comprehensive list of the features currently in Forem:
   * Pinning topics
 * Posts
   * Replying to topics
-  * Deleting own topics
+  * Deleting own posts
   * Blocking replies to locked topics
   * Editing posts
 * Text Formatting
@@ -77,7 +122,7 @@ Here's a comprehensive list of the features currently in Forem:
 * [Translations](https://github.com/radar/forem/wiki/Translations)
 * [Flexible configuration](https://github.com/radar/forem/wiki/Configuration)
 * [Integration with
-  RefineryCMS](https://github.com/radar/forem/wiki/Integration-with-RefineryCMS)
+  Refinery CMS](https://github.com/radar/forem/wiki/Integration-with-Refinery-CMS)
 
 If there's a feature you think would be great to add to Forem, let us know on [the Issues
 page](https://github.com/radar/forem/issues)
@@ -88,6 +133,8 @@ If you would like to add auto discovery links for the built in forum Atom feeds,
 ```erb
 <%= forem_atom_auto_discovery_link_tag %>
 ```
+
+Forem's default layout includes this tag.
 
 ## View Customisation
 
@@ -133,19 +180,27 @@ The exact same format can be used to redefine an existing method.
 
 We currently have support for the following languages:
 
+* Arabic
 * Brazillian (pt-BR)
 * Bulgarian
-* Chinese (zh-CN)
+* Chinese (Simplified, zh-CN)
+* Chinese (Traditional, zh-TW)
+* Czech
 * Dutch
 * English
+* Estonian
 * Farsi (Persian)
 * German
 * Italian
+* Japanese
+* Korean
+* Lithuanian
 * Polish
 * Portuguese (pt-PT)
 * Russian
+* Slovak
 * Spanish
-* Lithuanian
+* Turkish
 
 Patches for new translations are very much welcome!
 
@@ -178,13 +233,14 @@ If all the tests are passing (they usually are), then you're good to go! Develop
 
 ## Places using Forem
 
-* [Bias Project](http://biasproject.org)
 * [Alabama Intel](http://alabamaintel.com)
-* [PixieEngine](http://pixieengine.com/community)
-* [2012 Presidential Election](http://www.2012-presidential-election.info/network/)
 * [Huntington's Disease Youth Organization](http://hdyo.org/)
 * [Miniand Tech](https://www.miniand.com/forums)
 * [Goodsmiths](https://www.goodsmiths.com/hub)
 * [Now Novel](http://nownovel.com/bookwriting)
+* [OrbsCCG](http://orbsccg.com/forums/)
+* [Airesis](http://www.airesis.eu)
+* [Lab Nation](https://www.lab-nation.com/forum/)
+* [INRTracker](http://www.inrtracker.com/community)
 
 If you want yours added here, just ask!

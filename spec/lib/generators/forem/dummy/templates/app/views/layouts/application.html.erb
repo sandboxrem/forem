@@ -9,10 +9,10 @@
 </head>
 <body>
   <% flash.each do |key, message| %>
-    <div id='flash_<%= key %>'><%= message %></div>
+    <div class='flash <%= key %>'><%= message %></div>
   <% end %>
   <% if user_signed_in? %>
-    Signed in as <%= forem_user %>
+    Signed in as <%= forem_user.forem_name %>
     <%= link_to "Sign out", main_app.destroy_user_session_path, :method => :delete %>
   <% end %>
 

@@ -1,46 +1,47 @@
 Forem::Engine.routes.draw do
   root :to => "forums#index"
 
-  resources :forums, :only => [:index, :show] do
-    resources :topics do
-      member do
-        get :subscribe
-        get :unsubscribe
-      end
-    end
-  end
-
-  resources :topics do
-    resources :posts
-  end
-
-  get 'forums/:forum_id/moderation', :to => "moderation#index", :as => :forum_moderator_tools
-  # For mass moderation of posts
-  put 'forums/:forum_id/moderate/posts', :to => "moderation#posts", :as => :forum_moderate_posts
-  # Moderation of a single topic
-  put 'forums/:forum_id/topics/:topic_id/moderate', :to => "moderation#topic", :as => :moderate_forum_topic
-
-  resources :categories
+  resources :categories, :only => [:index, :show]
 
   namespace :admin do
     root :to => "base#index"
     resources :groups do
-      resources :members
+      resources :members, only: [:destroy] do
+        collection do
+          post :add
+        end
+      end
     end
 
     resources :forums do
       resources :moderators
-    end
-
-    resources :categories
-    resources :topics do
-      member do
-        put :toggle_hide
-        put :toggle_lock
-        put :toggle_pin
+      resources :topics do
+        member do
+          put :toggle_hide
+          put :toggle_lock
+          put :toggle_pin
+        end
       end
     end
 
-    get 'users/autocomplete', :to => "users#autocomplete"
+    resources :categories
+
+    get 'users/autocomplete', :to => "users#autocomplete", :as => "user_autocomplete"
+  end
+
+  get '/:forum_id/moderation', :to => "moderation#index", :as => :forum_moderator_tools
+  # For mass moderation of posts
+  put '/:forum_id/moderate/posts', :to => "moderation#posts", :as => :forum_moderate_posts
+  # Moderation of a single topic
+  put '/:forum_id/topics/:topic_id/moderate', :to => "moderation#topic", :as => :moderate_forum_topic
+
+  resources :forums, :only => [:index, :show], :path => "/" do
+    resources :topics, :except => :index do
+      resources :posts, :except => :index
+      member do
+        post :subscribe
+        post :unsubscribe
+      end
+    end
   end
 end

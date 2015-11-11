@@ -30,15 +30,13 @@ module Forem
 
       private
 
-      def find_group
-        @group = Forem::Group.find(params[:id])
-      end
-      
-      def group_params
-        params.require(:group).permit(
-          :name
-        )
-      end
+        def find_group
+          @group = Forem::Group.find(params[:id])
+        end
+
+        def group_params
+          params.require(:group).permit(:name)
+        end
     end
   end
 end

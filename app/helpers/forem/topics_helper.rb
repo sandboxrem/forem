@@ -2,8 +2,8 @@ module Forem
   module TopicsHelper
     def link_to_latest_post(topic)
       post = relevant_posts(topic).last
-      text = "#{time_ago_in_words(post.created_at)} #{t("ago_by")} #{post.user}"
-      link_to text, forem.forum_topic_path(post.topic.forum, post.topic, :anchor => "post-#{post.id}")
+      text = "#{time_ago_in_words(post.created_at)} #{t("ago_by")} #{post.user.forem_name}"
+      link_to text, forem.forum_topic_path(post.topic.forum, post.topic, :anchor => "post-#{post.id}", pagination_param => topic.last_page)
     end
 
     def new_since_last_view_text(topic)
@@ -27,6 +27,12 @@ module Forem
         posts.visible.approved_or_pending_review_for(topic.user)
       else
         posts.approved
+      end
+    end
+
+    def post_time_tag(post)
+      content_tag("time", datetime: post.created_at.to_s(:db)) do
+        "#{time_ago_in_words(post.created_at)} #{t(:ago)}"
       end
     end
 

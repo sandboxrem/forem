@@ -12,37 +12,61 @@ module Forem
       end
 
       def create
-        @forum = Forem::Forum.new(params[:forum])
+        @forum = Forem::Forum.new(forum_params)
         if @forum.save
-          flash[:notice] = t("forem.admin.forum.created")
-          redirect_to admin_forums_path
+          create_successful
         else
-          flash.now.alert = t("forem.admin.forum.not_created")
-          render :action => "new"
+          create_failed
         end
       end
 
       def update
-        if @forum.update_attributes(params[:forum])
-          flash[:notice] = t("forem.admin.forum.updated")
-          redirect_to admin_forums_path
+        if @forum.update_attributes(forum_params)
+          update_successful
         else
-          flash.now.alert = t("forem.admin.forum.not_updated")
-          render :action => "edit"
+          update_failed
         end
       end
 
       def destroy
         @forum.destroy
-        flash[:notice] = t("forem.admin.forum.deleted")
-        redirect_to admin_forums_path
+        destroy_successful
       end
 
       private
 
-        def find_forum
-          @forum = Forem::Forum.find(params[:id])
-        end
+      def forum_params
+        params.require(:forum).permit(:category_id, :title, :description, :position, { :moderator_ids => []})
+      end
+
+      def find_forum
+        @forum = Forem::Forum.friendly.find(params[:id])
+      end
+
+      def create_successful
+        flash[:notice] = t("forem.admin.forum.created")
+        redirect_to admin_forums_path
+      end
+
+      def create_failed
+        flash.now.alert = t("forem.admin.forum.not_created")
+        render :action => "new"
+      end
+
+      def destroy_successful
+        flash[:notice] = t("forem.admin.forum.deleted")
+        redirect_to admin_forums_path
+      end
+
+      def update_successful
+        flash[:notice] = t("forem.admin.forum.updated")
+        redirect_to admin_forums_path
+      end
+
+      def update_failed
+        flash.now.alert = t("forem.admin.forum.not_updated")
+        render :action => "edit"
+      end
 
     end
   end

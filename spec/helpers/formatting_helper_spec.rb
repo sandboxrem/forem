@@ -1,91 +1,96 @@
 require 'spec_helper'
 
 describe Forem::FormattingHelper do
-  # This formatter uses the simple_format helper, which will um..
-  # simply format things. Yes, that'll do.
   describe "as_formatted_html(text)" do
     let(:raw_html) {"<p>html</p>"}
     let(:text) {'three blind mice'}
     before { Forem.formatter = nil }
 
     describe "unsafe html" do
-      subject { helper.as_formatted_html(raw_html) }
+      subject { helper.as_formatted_html("<script>alert('HELLO')</script> LOL") }
       it "is escaped" do
-        subject.should == "<p>" + ERB::Util.h(raw_html) + "</p>"
+        expect(subject).to eq("alert('HELLO') LOL")
       end
-      it {should be_html_safe}
+      it {is_expected.to be_html_safe}
     end
 
     describe "safe html" do
       subject { helper.as_formatted_html(raw_html.html_safe) }
       specify "is not escaped" do
-        subject.should == "<p>" + raw_html + "</p>"
+        expect(subject).to eq("<p>html</p>")
       end
-      it {should be_html_safe}
+      it {is_expected.to be_html_safe}
     end
   end
 
   describe "as_quoted_text" do
     let(:raw_html) {"<p>html</p>"}
     describe "default formatter" do
-       before { Forem.formatter = nil }
+      before { Forem.formatter = nil }
 
-       describe "unsafe html" do
-         subject { helper.as_quoted_text(raw_html) }
-         it "is escaped" do
-           subject.should == "<blockquote>" + ERB::Util.h(raw_html) + "</blockquote>\n\n"
-         end
-         it {should be_html_safe}
-       end
+      describe "unsafe html" do
+        subject { helper.as_quoted_text(raw_html) }
+        it "is escaped" do
+          expect(subject).to eq("<blockquote>" + ERB::Util.h(raw_html) + "</blockquote>\n\n")
+        end
+        it {is_expected.to be_html_safe}
+      end
 
-       describe "safe html" do
-         subject { helper.as_quoted_text(raw_html.html_safe) }
-         specify "is not escaped" do
-           subject.should == "<blockquote>" + raw_html + "</blockquote>\n\n"
-         end
-         it {should be_html_safe}
-       end
+      describe "safe html" do
+        subject { helper.as_quoted_text(raw_html.html_safe) }
+        specify "is not escaped" do
+          expect(subject).to eq("<blockquote>" + raw_html + "</blockquote>\n\n")
+        end
+        it {is_expected.to be_html_safe}
+      end
     end
 
-    describe "Redcarpet" do
-       let(:markdown) { "**strong text**" }
-       before { Forem.formatter = Forem::Formatters::Redcarpet }
+    describe "Markdown" do
+      let(:markdown) { "**strong text**" }
+      before {
+        # MRI-specific C-extention tests
+        if Forem::Platform.mri?
+          Forem.formatter = Forem::Formatters::Redcarpet
+        else
+          Forem.formatter = Forem::Formatters::Kramdown
+        end
+      }
 
-       describe "uses <blockquote> if no blockquote method" do
-         subject { helper.as_quoted_text(markdown) }
-         before { Forem.formatter.stub('respond_to?').with(:blockquote).and_return(false) }
-         it "wraps the content in blockquotes" do
-           subject.should == "<blockquote>#{markdown}</blockquote>\n\n"
-         end
-         it {should be_html_safe}
-       end
+      describe "uses <blockquote> if no blockquote method" do
+        subject { helper.as_quoted_text(markdown) }
+        before { allow(Forem.formatter).to receive('respond_to?').with(:blockquote).and_return(false) }
+        it "wraps the content in blockquotes" do
+          expect(subject).to eq("<blockquote>#{markdown}</blockquote>\n\n")
+        end
+        it {is_expected.to be_html_safe}
+      end
 
       describe "uses formatter quoting method if exists" do
-         subject { helper.as_quoted_text(raw_html) }
-         before {
-           Forem.formatter.stub('respond_to?').with(:blockquote).and_return(true)
-           Forem.formatter.stub('respond_to?').with(:sanitize).and_return(false)
+        subject { helper.as_quoted_text(raw_html) }
+        before do
+          allow(Forem.formatter).to receive('respond_to?').with(:blockquote).and_return(true)
+          allow(Forem.formatter).to receive('respond_to?').with(:sanitize).and_return(false)
 
-           Forem.formatter.stub(:blockquote).and_return("> #{markdown}")
-         }
+          allow(Forem.formatter).to receive(:blockquote).and_return("> #{markdown}")
+        end
 
-         it "quotes the original content" do
-           subject.should == "> #{markdown}"
-         end
-         it {should be_html_safe}
-       end
+        it "quotes the original content" do
+          expect(subject).to eq("> #{markdown}")
+        end
+        it {is_expected.to be_html_safe}
+      end
 
       describe "uses formatter sanitize method if exists" do
         subject { helper.as_formatted_html(markdown) }
 
         before {
-          Forem.formatter.stub('respond_to?').with(:blockquote).and_return(false)
-          Forem.formatter.stub('respond_to?').with(:sanitize).and_return(true)
+          allow(Forem.formatter).to receive('respond_to?').with(:blockquote).and_return(false)
+          allow(Forem.formatter).to receive('respond_to?').with(:sanitize).and_return(true)
 
-          Forem.formatter.stub(:sanitize).and_return("sanitized it")
+          allow(Forem.formatter).to receive(:sanitize).and_return("sanitized it")
         }
 
-        it {subject.should == "<p>sanitized it</p>"}
+        it {expect(subject).to match(%r{\A<p>sanitized it</p>$})}
 
       end
     end

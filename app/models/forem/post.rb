@@ -1,24 +1,14 @@
 module Forem
   class Post < ActiveRecord::Base
     include Workflow
-
-    workflow_column :state
-    workflow do
-      state :pending_review do
-        event :spam,    :transitions_to => :spam
-        event :approve, :transitions_to => :approved
-      end
-      state :spam
-      state :approved do
-        event :approve, :transitions_to => :approved
-      end
-    end
+    include Forem::Concerns::NilUser
+    include Forem::StateWorkflow
 
     # Used in the moderation tools partial
     attr_accessor :moderation_option
 
     belongs_to :topic
-    belongs_to :user,     :class_name => Forem.user_class.to_s
+    belongs_to :forem_user, :class_name => Forem.user_class.to_s, :foreign_key => :user_id
     belongs_to :reply_to, :class_name => "Post"
 
     has_many :replies, :class_name  => "Post",
@@ -33,10 +23,6 @@ module Forem
     after_create :subscribe_replier, :if => :user_auto_subscribe?
     after_create :skip_pending_review
 
-    after_save :approve_user,   :if => :approved?
-    after_save :blacklist_user, :if => :spam?
-    after_save :email_topic_subscribers, :if => Proc.new { |p| p.approved? && !p.notified? }
-
     class << self
       def approved
         where(:state => "approved")
@@ -44,9 +30,10 @@ module Forem
 
       def approved_or_pending_review_for(user)
         if user
-          where arel_table[:state].eq('approved').or(
-                  arel_table[:state].eq('pending_review').and(arel_table[:user_id].eq(user.id))
-                )
+          state_column = "#{Post.table_name}.state"
+          where("#{state_column} = 'approved' OR
+            (#{state_column} = 'pending_review' AND #{Post.table_name}.user_id = :user_id)",
+            user_id: user.id)
         else
           approved
         end
@@ -97,31 +84,34 @@ module Forem
       end
     end
 
+    # Called when a post is approved.
+    def approve
+      approve_user
+      return if notified?
+      email_topic_subscribers
+    end
+
     def email_topic_subscribers
       topic.subscriptions.includes(:subscriber).find_each do |subscription|
-        if subscription.subscriber != user
-          subscription.send_notification(id)
-        end
+        subscription.send_notification(id) if subscription.subscriber != user
       end
-      update_attribute(:notified, true)
+      update_column(:notified, true)
     end
 
     def set_topic_last_post_at
-      topic.update_attribute(:last_post_at, created_at)
+      topic.update_column(:last_post_at, created_at)
     end
 
     def skip_pending_review
-      if user.try(:forem_needs_moderation?)
-        update_attribute(:state, 'approved')
-      end
+      approve! unless user && user.forem_moderate_posts?
     end
 
     def approve_user
-      user.update_attribute(:forem_state, "approved") if user && user.forem_state != "approved"
+      user.update_column(:forem_state, "approved") if user && user.forem_state != "approved"
     end
 
-    def blacklist_user
-      user.update_attribute(:forem_state, "spam") if user
+    def spam
+      user.update_column(:forem_state, "spam") if user
     end
 
   end

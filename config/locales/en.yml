@@ -1,6 +1,7 @@
 en:
   forem:
     general:
+      deleted: [deleted]
       forum: Forum
       topics: Topics
       topic: Topic
@@ -16,8 +17,12 @@ en:
     access_denied: "You are not allowed to do that."
     admin:
       area: Admin Area
+      back_to_admin: "Back to Admin"
+      back_to_forums: "Back to forums"
+      back_to_groups: "Back to groups"
       welcome: "Welcome to forem's Admin Area."
       forum:
+        moderator_groups: Moderator groups
         index: Manage Forums
         new: Creating a new forum
         new_link: New Forum
@@ -41,15 +46,22 @@ en:
         created: The group was successfully created.
         not_created: Group could not be created.
         deleted: The selected group has been deleted.
+        members: "Members in %{group}"
       groups:
         show:
           add_member: Add
+          add_a_new_member: "Add a new member"
+          current_members: "Current Members"
+          remove_member: "Remove member"
+          member_removed: "The selected user has been removed from the group."
+          no_member_to_remove: "The selected user does not belong to this group."
         edit: Edit
         delete: Delete
         name: Name
       category:
         index: Manage Forum Categories
         new: Creating a new Forum Category
+        edit: "Editing the %{title} category"
         new_link: New Forum Category
         deleted: The selected forum category has been deleted.
         created: This forum category has been created.
@@ -148,7 +160,7 @@ en:
         edit: Edit
       created: Your reply has been posted.
       new: Post reply to
-      edit: Edit
+      edit: Editing post
       not_created: Your reply could not be posted.
       not_created_topic_locked: You cannot reply to a locked topic.
       edited: Your post has been edited.
@@ -157,6 +169,7 @@ en:
       deleted_with_topic: Only post in topic deleted. Topic also deleted.
       cannot_delete: You cannot delete a post you do not own.
       in_reply_to: In reply to
+      cannot_quote_deleted_post: The post you tried to quote does not exist anymore.
     posts:
       moderation:
         moderate: Moderate
@@ -166,7 +179,8 @@ en:
       post:
         pending_review: This post is currently pending review. Only the user who posted it and moderators can view it.
     moderation:
-      title: "Moderation tools for %{forum}"
+      index:
+        title: "Moderation tools for %{forum}"
   helpers:
     submit:
       forum:
@@ -177,9 +191,13 @@ en:
         update: Update Topic
   simple_form:
     labels:
+      category:
+        name: Name
       forum:
         title: Title
         description: Description
+        category: Category
+        moderators: Moderators
       topic:
         subject: Subject
         locked: Locked
@@ -189,6 +207,8 @@ en:
           text: Text
       post:
         text: Text
+      group:
+        name: Name
 
   # General stuff
   time_ago_in_words: "%{time} ago"
