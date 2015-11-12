@@ -3,7 +3,7 @@ require 'friendly_id'
 module Forem
   class Topic < ActiveRecord::Base
     include Forem::Concerns::Viewable
-    #include Forem::Concerns::NilUser
+    include Forem::Concerns::NilUser
     include Workflow
     include Forem::StateWorkflow
 
@@ -14,7 +14,7 @@ module Forem
 
 
     belongs_to :forum
-    belongs_to :user, :class_name => Forem.user_class.to_s
+    belongs_to :forem_user, :class_name => Forem.user_class.to_s, :foreign_key => :user_id
     has_many   :subscriptions
     has_many   :posts, -> { order("forem_posts.created_at ASC") }, :dependent => :destroy
     accepts_nested_attributes_for :posts
