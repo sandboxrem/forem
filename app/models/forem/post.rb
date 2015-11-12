@@ -1,7 +1,7 @@
 module Forem
   class Post < ActiveRecord::Base
     include Workflow
-    include Forem::Concerns::NilUser
+    #include Forem::Concerns::NilUser
     include Forem::StateWorkflow
 
     # Used in the moderation tools partial

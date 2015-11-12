@@ -3,7 +3,7 @@ require 'friendly_id'
 module Forem
   class Topic < ActiveRecord::Base
     include Forem::Concerns::Viewable
-    include Forem::Concerns::NilUser
+    #include Forem::Concerns::NilUser
     include Workflow
     include Forem::StateWorkflow
 
